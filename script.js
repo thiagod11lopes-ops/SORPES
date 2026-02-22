@@ -30,7 +30,13 @@
                 const tx = db.transaction(STORE_NAME, 'readwrite');
                 const store = tx.objectStore(STORE_NAME);
                 store.put(state, STATE_KEY);
-                tx.oncomplete = function () { db.close(); resolve(); };
+                tx.oncomplete = function () {
+                    db.close();
+                    if (window.sorpesFirebase && typeof window.sorpesFirebase.salvarEstado === 'function') {
+                        window.sorpesFirebase.salvarEstado(state);
+                    }
+                    resolve();
+                };
                 tx.onerror = function () { reject(tx.error); };
             });
         }).catch(function () {});
@@ -2010,17 +2016,23 @@
             }
         });
 
-        loadFromDB().then(function (loaded) {
-            if (loaded && Array.isArray(loaded.usuarios)) state.usuarios = loaded.usuarios;
-            if (loaded && loaded.meses && Object.keys(loaded.meses).length > 0) {
-                state.meses = loaded.meses;
-                state.mesAtivo = loaded.mesAtivo || '2026-02';
+        var firebaseLoad = (window.sorpesFirebase && typeof window.sorpesFirebase.carregarEstado === 'function')
+            ? window.sorpesFirebase.carregarEstado() : Promise.resolve(null);
+        Promise.all([loadFromDB(), firebaseLoad]).then(function (results) {
+            var loaded = results[0];
+            var firebaseData = results[1];
+            var stateToUse = (firebaseData && (firebaseData.meses && Object.keys(firebaseData.meses).length > 0 || firebaseData.gastosFixos || firebaseData.receitas || firebaseData.gastosMensais))
+                ? firebaseData : loaded;
+            if (stateToUse && Array.isArray(stateToUse.usuarios)) state.usuarios = stateToUse.usuarios;
+            if (stateToUse && stateToUse.meses && Object.keys(stateToUse.meses).length > 0) {
+                state.meses = stateToUse.meses;
+                state.mesAtivo = stateToUse.mesAtivo || '2026-02';
                 if (!state.meses[state.mesAtivo]) {
                     state.mesAtivo = Object.keys(state.meses).sort().reverse()[0];
                 }
-                state.anoAtivo = loaded.anoAtivo || (state.mesAtivo ? state.mesAtivo.split('-')[0] : '2026');
-            } else if (loaded && (loaded.gastosFixos || loaded.receitas || loaded.gastosMensais)) {
-                state.meses['2026-02'] = loaded;
+                state.anoAtivo = stateToUse.anoAtivo || (state.mesAtivo ? state.mesAtivo.split('-')[0] : '2026');
+            } else if (stateToUse && (stateToUse.gastosFixos || stateToUse.receitas || stateToUse.gastosMensais)) {
+                state.meses['2026-02'] = stateToUse;
                 state.mesAtivo = '2026-02';
                 state.anoAtivo = '2026';
             } else {
@@ -2028,6 +2040,7 @@
                 state.mesAtivo = '2026-02';
                 state.anoAtivo = '2026';
             }
+            if (firebaseData === stateToUse) saveToDB(state);
             renderYearTabs();
             renderMonthTabs();
             restoreState(state.meses[state.mesAtivo] || getEmptyMonthData());

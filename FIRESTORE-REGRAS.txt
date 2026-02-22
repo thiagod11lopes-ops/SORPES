@@ -1,0 +1,32 @@
+============================================
+REGRAS DO FIRESTORE - SORPES (só para teste)
+============================================
+
+Se os dados não aparecem no Firebase ao usar o site no GitHub Pages,
+o motivo mais comum é as REGRAS do Firestore bloquearem escrita.
+
+PASSO A PASSO:
+1. Abra https://console.firebase.google.com
+2. Selecione o projeto: sorpes-9ddcb
+3. No menu lateral: Firestore Database > Regras (Rules)
+4. Substitua o conteúdo por:
+
+--- COPIE DA LINHA ABAIXO ---
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /sorpes/{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
+
+--- ATÉ AQUI ---
+
+5. Clique em "Publicar" (Publish).
+
+AVISO: "if true" permite que qualquer pessoa leia e escreva na coleção sorpes.
+Use só para teste. Depois ative Autenticação e restrinja por usuário.
+
+============================================
