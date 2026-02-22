@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SORPES - Sistema de Organização pessoal</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="layout-principal">
+        <header class="cabecalho">
+            <div class="cabecalho-esquerda">
+                <div class="cabecalho-titulo">
+                    <div class="cabecalho-icone" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Organização e disciplina">
+                            <!-- Prancheta -->
+                            <rect x="8" y="4" width="32" height="40" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <!-- Clip superior -->
+                            <rect x="18" y="2" width="12" height="6" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                            <!-- Linhas da lista (organização) -->
+                            <line x1="14" y1="16" x2="34" y2="16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                            <line x1="14" y1="24" x2="34" y2="24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                            <line x1="14" y1="32" x2="26" y2="32" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                            <!-- Check (disciplina / tarefa concluída) -->
+                            <path d="M30 28l3 3 5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="cabecalho-titulo-texto">
+                        <span class="titulo-marca">SORPES</span>
+                        <span class="titulo-descricao">Sistema de Organização pessoal</span>
+                    </div>
+                </div>
+                <button type="button" class="btn-backup-header" id="btn-backup-header" title="Backup dos dados - último: nunca">
+                    <span class="btn-backup-icone" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                    <span class="btn-backup-data" id="backup-ultima-data">nunca</span>
+                </button>
+                <button type="button" class="btn-usuarios-header" id="btn-usuarios-header" title="Cadastrar usuários do sistema">
+                    <span class="btn-usuarios-header-icone" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                    <span class="btn-usuarios-header-texto">Usuários</span>
+                </button>
+            </div>
+            <button type="button" class="btn-estatistica" id="btn-estatistica" title="Estatísticas" aria-label="Estatísticas">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M3 3v18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M7 16v-5M11 16v-2M15 16v-7M19 16v-10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <div class="cabecalho-direita">
+            <div class="cabecalho-totais" id="cabecalho-totais">
+                <button type="button" class="btn-ver-mais-cards" id="btn-ver-mais-cards" title="Exibir ou ocultar todos os cards" aria-label="Exibir ou ocultar todos os cards">
+                    <svg class="btn-ver-mais-icone" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <div class="total-item total-item-oculto" title="Soma de todos os gastos fixos cadastrados (despesas recorrentes como aluguel, internet, etc.)"><span class="total-label">Gastos Fixos</span><span id="total-fixos" class="total-valor">R$ 0,00</span></div>
+                <div class="total-item total-item-oculto" title="Soma de todos os gastos variáveis cadastrados (despesas que mudam conforme o uso)"><span class="total-label">Gastos Variáveis</span><span id="total-variaveis" class="total-valor">R$ 0,00</span></div>
+                <div class="total-item total-item-oculto" title="Soma de todas as movimentações diversas cadastradas nos blocos"><span class="total-label">Movimentações Diversas</span><span id="total-mensais" class="total-valor">R$ 0,00</span></div>
+                <div class="total-item" title="Movimentações diversas + gastos fixos e variáveis marcados como pago. Representa o que já foi ou será gasto no período atual."><span class="total-label">Gasto atual</span><span id="total-gasto-atual" class="total-valor">R$ 0,00</span></div>
+                <div class="total-item total-item-oculto" title="Soma total de todos os gastos planejados: fixos + variáveis + movimentações diversas"><span class="total-label">Gasto Programado</span><span id="total-gastos-gerais" class="total-valor">R$ 0,00</span></div>
+                <div class="total-item" title="Geral + Ganhos Futuros - Gasto Programado. Projeção do saldo considerando ganhos futuros e descontando gastos programados."><span class="total-label">Projeção de Saldo</span><span id="total-projecao-saldo" class="total-valor">R$ 0,00</span></div>
+                <div class="total-item total-item-oculto" title="Soma de todas as receitas/ganhos já registrados"><span class="total-label">Ganhos Registrados</span><span id="total-receitas" class="total-valor">R$ 0,00</span></div>
+                <div class="total-item total-item-oculto" title="Soma dos ganhos futuros planejados (a receber)"><span class="total-label">Ganhos Futuros</span><span id="total-ganhos-futuros" class="total-valor">R$ 0,00</span></div>
+                <div class="total-item total-geral" title="Ganhos Registrados - Gasto atual. Saldo atual (receitas registradas menos gastos já efetivados)."><span class="total-label">Saldo</span><span id="total-geral" class="total-valor">R$ 0,00</span></div>
+            </div>
+            </div>
+        </header>
+
+        <div class="area-formularios">
+            <aside class="sidebar-meses">
+                <button type="button" class="btn-adicionar-mes" id="btn-adicionar-mes" title="Adicionar mês" aria-label="Adicionar mês">+</button>
+                <div class="sidebar-colunas">
+                    <div class="sidebar-col-anos">
+                        <nav class="lista-anos" id="lista-anos" aria-label="Navegação por ano"></nav>
+                    </div>
+                    <div class="sidebar-col-meses">
+                        <nav class="lista-meses" id="lista-meses" aria-label="Navegação por mês"></nav>
+                    </div>
+                </div>
+            </aside>
+            <main class="container-principal">
+        <nav class="tabs-navegacao">
+            <button type="button" class="tab-botao ativo" data-tab="fixos">Gastos Fixos</button>
+            <button type="button" class="tab-botao" data-tab="variaveis">Gastos Variáveis</button>
+            <button type="button" class="tab-botao" data-tab="mensais">Movimentações Diversas</button>
+            <button type="button" class="tab-botao" data-tab="receitas">Ganhos Registrados</button>
+            <button type="button" class="tab-botao" data-tab="ganhos-futuros">Ganhos futuros</button>
+        </nav>
+
+        <div class="tab-paineis">
+            <div class="tab-painel ativo" id="painel-fixos">
+        <section class="bloco gastos-fixos">
+            <div class="bloco-titulo-row">
+                <h2>Gastos Fixos</h2>
+                <button type="button" class="btn-plus-titulo" id="btn-plus-fixos" aria-label="Abrir campos para adicionar gasto fixo" title="Adicionar gasto fixo">+</button>
+            </div>
+            <div class="bloco-conteudo">
+                <form class="formulario-gasto" data-tipo="fixo" id="form-gastos-fixos">
+                    <div class="campo">
+                        <label for="fixo-vencimento">Vencimento</label>
+                        <input type="date" id="fixo-vencimento" name="vencimento" required>
+                    </div>
+                    <div class="campo">
+                        <label for="fixo-descricao">Descrição</label>
+                        <input type="text" id="fixo-descricao" name="descricao" placeholder="Ex: Internet, Aluguel..." required>
+                    </div>
+                    <div class="campo">
+                        <label for="fixo-tipo">Tipo</label>
+                        <input type="text" id="fixo-tipo" name="tipo" placeholder="Ex: Serviço, Casa..." required>
+                    </div>
+                    <div class="campo">
+                        <label for="fixo-valor">Valor</label>
+                        <input type="number" id="fixo-valor" name="valor" placeholder="0,00" step="0.01" min="0" required>
+                    </div>
+                    <div class="campo campo-dono" id="campo-dono-fixo" style="display:none">
+                        <label for="fixo-usuario">Dono</label>
+                        <select id="fixo-usuario" name="usuario"><option value="">— Nenhum —</option></select>
+                    </div>
+                    <div class="form-botoes">
+                        <button type="submit" class="btn-adicionar">Adicionar</button>
+                        <button type="button" class="btn-cancelar-edicao" style="display:none">Cancelar</button>
+                    </div>
+                </form>
+                <table class="tabela-gastos" id="tabela-gastos-fixos">
+                    <thead>
+                        <tr>
+                            <th>Vencimento</th>
+                            <th>Descrição</th>
+                            <th>Tipo</th>
+                            <th>Valor</th>
+                            <th class="col-usuario">Dono</th>
+                            <th class="col-pago">Pago</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+            </div>
+
+            <div class="tab-painel" id="painel-variaveis">
+        <section class="bloco gastos-variaveis">
+            <div class="bloco-titulo-row">
+                <h2>Gastos Variáveis</h2>
+                <button type="button" class="btn-plus-titulo" id="btn-plus-variaveis" aria-label="Abrir campos para adicionar gasto variável" title="Adicionar gasto variável">+</button>
+            </div>
+            <div class="bloco-conteudo">
+                <form class="formulario-gasto" data-tipo="variavel" id="form-gastos-variaveis">
+                    <div class="campo">
+                        <label for="variavel-vencimento">Vencimento</label>
+                        <input type="date" id="variavel-vencimento" name="vencimento" required>
+                    </div>
+                    <div class="campo">
+                        <label for="variavel-descricao">Descrição</label>
+                        <input type="text" id="variavel-descricao" name="descricao" placeholder="Ex: Supermercado, Combustível..." required>
+                    </div>
+                    <div class="campo">
+                        <label for="variavel-tipo">Tipo</label>
+                        <input type="text" id="variavel-tipo" name="tipo" placeholder="Ex: Alimentação, Transporte..." required>
+                    </div>
+                    <div class="campo">
+                        <label for="variavel-valor">Valor</label>
+                        <input type="number" id="variavel-valor" name="valor" placeholder="0,00" step="0.01" min="0" required>
+                    </div>
+                    <div class="campo campo-dono" id="campo-dono-variavel" style="display:none">
+                        <label for="variavel-usuario">Dono</label>
+                        <select id="variavel-usuario" name="usuario"><option value="">— Nenhum —</option></select>
+                    </div>
+                    <div class="form-botoes">
+                        <button type="submit" class="btn-adicionar">Adicionar</button>
+                        <button type="button" class="btn-cancelar-edicao" style="display:none">Cancelar</button>
+                    </div>
+                </form>
+                <table class="tabela-gastos" id="tabela-gastos-variaveis">
+                    <thead>
+                        <tr>
+                            <th>Vencimento</th>
+                            <th>Descrição</th>
+                            <th>Tipo</th>
+                            <th>Valor</th>
+                            <th class="col-usuario">Dono</th>
+                            <th class="col-pago">Pago</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+            </div>
+
+            <div class="tab-painel" id="painel-mensais">
+        <section class="bloco gastos-mensais">
+            <h2>Movimentações Diversas</h2>
+            <div class="bloco-conteudo">
+                <button type="button" class="btn-adicionar-gastos" id="btn-adicionar-gasto-mensal">+ Adicionar movimentação</button>
+                <div class="lista-gastos-mensais" id="lista-gastos-mensais"></div>
+            </div>
+        </section>
+            </div>
+
+            <div class="tab-painel" id="painel-receitas">
+        <section class="bloco receitas">
+            <div class="bloco-titulo-row">
+                <h2>Ganhos Registrados</h2>
+                <button type="button" class="btn-plus-titulo" id="btn-plus-receitas" aria-label="Abrir campos para adicionar ganho" title="Adicionar ganho registrado">+</button>
+            </div>
+            <div class="bloco-conteudo">
+                <form class="formulario-receita" id="form-receitas">
+                    <div class="campo">
+                        <label for="receita-data">Data</label>
+                        <input type="date" id="receita-data" name="data" required>
+                    </div>
+                    <div class="campo">
+                        <label for="receita-tipo">Tipo de receita</label>
+                        <input type="text" id="receita-tipo" name="tipo" placeholder="Ex: Salário, Freelance..." required>
+                    </div>
+                    <div class="campo">
+                        <label for="receita-valor">Valor</label>
+                        <input type="number" id="receita-valor" name="valor" placeholder="0,00" step="0.01" min="0" required>
+                    </div>
+                    <div class="campo campo-dono" id="campo-dono-receitas" style="display:none">
+                        <label for="receita-usuario">Dono</label>
+                        <select id="receita-usuario" name="usuario"><option value="">— Nenhum —</option></select>
+                    </div>
+                    <div class="form-botoes">
+                        <button type="submit" class="btn-adicionar">Adicionar</button>
+                        <button type="button" class="btn-cancelar-edicao" style="display:none">Cancelar</button>
+                    </div>
+                </form>
+                <table class="tabela-gastos" id="tabela-receitas">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Tipo</th>
+                            <th>Valor</th>
+                            <th class="col-usuario">Dono</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+            </div>
+
+            <div class="tab-painel" id="painel-ganhos-futuros">
+        <section class="bloco ganhos-futuros">
+            <div class="bloco-titulo-row">
+                <h2>Ganhos futuros</h2>
+                <button type="button" class="btn-plus-titulo" id="btn-plus-ganhos-futuros" aria-label="Abrir campos para adicionar ganho futuro" title="Adicionar ganho futuro">+</button>
+            </div>
+            <div class="bloco-conteudo">
+                <form class="formulario-receita" id="form-ganhos-futuros">
+                    <div class="campo">
+                        <label for="ganhos-futuros-data">Data</label>
+                        <input type="date" id="ganhos-futuros-data" name="data" required>
+                    </div>
+                    <div class="campo">
+                        <label for="ganhos-futuros-tipo">Tipo de ganho</label>
+                        <input type="text" id="ganhos-futuros-tipo" name="tipo" placeholder="Ex: Salário, Investimento..." required>
+                    </div>
+                    <div class="campo">
+                        <label for="ganhos-futuros-valor">Valor</label>
+                        <input type="number" id="ganhos-futuros-valor" name="valor" placeholder="0,00" step="0.01" min="0" required>
+                    </div>
+                    <div class="campo campo-dono" id="campo-dono-ganhos-futuros" style="display:none">
+                        <label for="ganhos-futuros-usuario">Dono</label>
+                        <select id="ganhos-futuros-usuario" name="usuario"><option value="">— Nenhum —</option></select>
+                    </div>
+                    <div class="form-botoes">
+                        <button type="submit" class="btn-adicionar">Adicionar</button>
+                        <button type="button" class="btn-cancelar-edicao" style="display:none">Cancelar</button>
+                    </div>
+                </form>
+                <table class="tabela-gastos" id="tabela-ganhos-futuros">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Tipo</th>
+                            <th>Valor</th>
+                            <th class="col-usuario">Dono</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+            </div>
+        </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal de aviso: mês com dados será perdido -->
+    <div class="modal-overlay" id="modal-aviso-dados" aria-hidden="true">
+        <div class="modal">
+            <h3>Atenção</h3>
+            <p id="modal-aviso-dados-texto">Existem dados registrados neste mês. Eles serão perdidos ao excluir a aba. Deseja continuar?</p>
+            <div class="modal-botoes">
+                <button type="button" class="btn-modal btn-cancelar" id="modal-aviso-dados-cancelar">Cancelar</button>
+                <button type="button" class="btn-modal btn-adicionar" id="modal-aviso-dados-continuar">Continuar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmação para excluir -->
+    <div class="modal-overlay" id="modal-excluir" aria-hidden="true">
+        <div class="modal">
+            <h3 id="modal-excluir-titulo">Excluir gasto</h3>
+            <p id="modal-excluir-texto">Tem certeza que deseja excluir este tipo de gasto?</p>
+            <div class="modal-botoes">
+                <button type="button" class="btn-modal btn-cancelar" id="modal-cancelar">Cancelar</button>
+                <button type="button" class="btn-modal btn-excluir" id="modal-confirmar">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal adicionar mês -->
+    <div class="modal-overlay" id="modal-novo-mes" aria-hidden="true">
+        <div class="modal">
+            <h3>Adicionar mês</h3>
+            <p>Selecione o mês e o ano para adicionar uma nova aba.</p>
+            <div class="campo">
+                <label for="input-novo-mes">Mês / Ano</label>
+                <input type="month" id="input-novo-mes" name="mes" min="2020-01" max="2030-12">
+            </div>
+            <p class="modal-aviso" id="modal-novo-mes-aviso" style="display:none;"></p>
+            <div class="modal-botoes">
+                <button type="button" class="btn-modal btn-cancelar" id="modal-novo-mes-cancelar">Cancelar</button>
+                <button type="button" class="btn-modal btn-adicionar" id="modal-novo-mes-confirmar">Adicionar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay + modal: backup antes de usar (abre só se não fez backup hoje) -->
+    <div class="modal-overlay overlay-backup-inicial" id="overlay-backup-inicial" aria-hidden="true">
+        <div class="modal">
+            <h3>Backup dos dados</h3>
+            <p id="backup-inicial-texto">Recomendamos fazer backup dos seus dados antes de continuar.</p>
+            <div class="modal-botoes">
+                <button type="button" class="btn-modal btn-cancelar" id="backup-inicial-pular">Continuar sem backup</button>
+                <button type="button" class="btn-modal btn-adicionar" id="backup-inicial-fazer">Fazer backup agora</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: menu backup (ao clicar no botão do cabeçalho) -->
+    <div class="modal-overlay" id="modal-backup-menu" aria-hidden="true">
+        <div class="modal">
+            <h3>Backup dos dados</h3>
+            <p>Faça um backup manual ou carregue um arquivo de backup salvo anteriormente.</p>
+            <div class="modal-botoes modal-botoes-coluna">
+                <button type="button" class="btn-modal btn-adicionar" id="backup-manual">Fazer backup manualmente</button>
+                <button type="button" class="btn-modal btn-backup-carregar" id="backup-carregar">Carregar arquivo de backup</button>
+                <button type="button" class="btn-modal btn-excluir" id="backup-excluir-tudo">Excluir tudo</button>
+                <input type="file" id="input-backup-file" accept=".json,application/json" style="display:none">
+            </div>
+            <div class="modal-botoes">
+                <button type="button" class="btn-modal btn-cancelar" id="backup-menu-fechar">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Estatísticas -->
+    <div class="modal-overlay modal-estatisticas" id="modal-estatisticas" aria-hidden="true">
+        <div class="modal-estatisticas-conteudo">
+            <div class="modal-estatisticas-header">
+                <h2 class="modal-estatisticas-titulo">Estatísticas</h2>
+                <button type="button" class="btn-estatisticas-fechar" id="btn-estatisticas-fechar" aria-label="Fechar">×</button>
+            </div>
+            <div class="modal-estatisticas-body" id="modal-estatisticas-body">
+                <!-- Conteúdo gerado dinamicamente pelo script -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cadastro de Usuários -->
+    <div class="modal-overlay modal-overlay-usuarios" id="modal-usuarios" aria-hidden="true">
+        <div class="modal modal-usuarios-box">
+            <div class="modal-usuarios-header">
+                <div class="modal-usuarios-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <h3 class="modal-usuarios-titulo">Usuários do sistema</h3>
+                <p class="modal-usuarios-desc">Cadastre as pessoas para atribuir entradas e saídas. Os cards no topo mostrarão totais por usuário.</p>
+            </div>
+            <div class="campo modal-usuarios-campo">
+                <label for="input-novo-usuario">Novo usuário</label>
+                <div class="modal-usuarios-add">
+                    <input type="text" id="input-novo-usuario" placeholder="Ex.: Maria, João…" maxlength="80" class="modal-usuarios-input">
+                    <button type="button" class="btn-modal btn-adicionar btn-usuarios-add" id="btn-adicionar-usuario">
+                        <span class="btn-usuarios-add-texto">Adicionar</span>
+                        <svg class="btn-usuarios-add-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-usuarios-lista-wrapper">
+                <span class="modal-usuarios-lista-label">Cadastrados</span>
+                <ul class="modal-usuarios-lista" id="lista-usuarios"></ul>
+            </div>
+            <div class="modal-botoes modal-usuarios-botoes">
+                <button type="button" class="btn-modal btn-cancelar btn-usuarios-fechar" id="modal-usuarios-fechar">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal copiar dados do mês anterior -->
+    <div class="modal-overlay" id="modal-copiar-mes-anterior" aria-hidden="true">
+        <div class="modal">
+            <h3>Copiar dados do mês anterior?</h3>
+            <p id="modal-copiar-mes-anterior-texto">Deseja que os dados do mês anterior sejam adicionados à nova aba?</p>
+            <p class="modal-copiar-detalhes">Serão copiados: <strong>Gastos fixos</strong>, <strong>Gastos variáveis</strong> e os <strong>limites dos blocos de Movimentações diversas</strong>. Os itens lançados nas Movimentações diversas não serão copiados.</p>
+            <div class="modal-botoes">
+                <button type="button" class="btn-modal btn-cancelar" id="modal-copiar-nao">Não</button>
+                <button type="button" class="btn-modal btn-adicionar" id="modal-copiar-sim">Sim</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
