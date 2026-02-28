@@ -1220,6 +1220,7 @@ body {
     transform: scale(0.98);
 }
 .formulario-anotacao-moderno .btn-cancelar-anotacao {
+    display: none;
     padding: 0.6rem 1rem;
     background: transparent;
     color: var(--cor-texto-suave);
@@ -1426,6 +1427,28 @@ body {
 .select-status-anotacao:focus {
     outline: none;
     border-color: var(--cor-destaque);
+}
+.btn-editar-anotacao {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    background: #f1f5f9;
+    color: var(--cor-texto-suave);
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.btn-editar-anotacao:hover {
+    background: #dbeafe;
+    color: #2563eb;
+}
+.btn-editar-anotacao svg {
+    width: 14px;
+    height: 14px;
 }
 .btn-excluir-anotacao {
     width: 28px;

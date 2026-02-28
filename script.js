@@ -197,8 +197,39 @@
 
         var btnPlusAnotacoes = document.getElementById('btn-plus-anotacoes');
         var formAnotacoes = document.getElementById('form-anotacoes');
+        var anotacaoEmEdicao = null;
+
+        function abrirEdicaoAnotacao(card) {
+            if (!formAnotacoes || !card) return;
+            var tituloEl = formAnotacoes.querySelector('[name="titulo"]');
+            var textoEl = formAnotacoes.querySelector('[name="texto"]');
+            var dataLimiteEl = formAnotacoes.querySelector('[name="dataLimite"]');
+            var btnSubmit = formAnotacoes.querySelector('.btn-adicionar');
+            var btnCancelar = formAnotacoes.querySelector('.btn-cancelar-anotacao');
+            if (tituloEl) tituloEl.value = card.dataset.titulo || '';
+            if (textoEl) textoEl.value = card.dataset.texto || '';
+            if (dataLimiteEl) dataLimiteEl.value = card.dataset.dataLimite || '';
+            anotacaoEmEdicao = card;
+            formAnotacoes.classList.add('visivel');
+            if (btnSubmit) btnSubmit.textContent = 'Atualizar';
+            if (btnCancelar) btnCancelar.style.display = 'inline-block';
+        }
+
+        function sairEdicaoAnotacao() {
+            anotacaoEmEdicao = null;
+            if (formAnotacoes) {
+                formAnotacoes.reset();
+                formAnotacoes.classList.remove('visivel');
+                var btnSubmit = formAnotacoes.querySelector('.btn-adicionar');
+                var btnCancelar = formAnotacoes.querySelector('.btn-cancelar-anotacao');
+                if (btnSubmit) btnSubmit.textContent = 'Adicionar';
+                if (btnCancelar) btnCancelar.style.display = 'none';
+            }
+        }
+
         if (btnPlusAnotacoes && formAnotacoes) {
             btnPlusAnotacoes.addEventListener('click', function () {
+                sairEdicaoAnotacao();
                 formAnotacoes.classList.toggle('visivel');
             });
             formAnotacoes.addEventListener('submit', function (e) {
@@ -207,6 +238,21 @@
                 var texto = (formAnotacoes.querySelector('[name="texto"]') || {}).value || '';
                 var dataLimite = (formAnotacoes.querySelector('[name="dataLimite"]') || {}).value || '';
                 if (!titulo.trim() || !dataLimite) return;
+                if (anotacaoEmEdicao) {
+                    anotacaoEmEdicao.dataset.titulo = titulo.trim();
+                    anotacaoEmEdicao.dataset.texto = texto.trim();
+                    anotacaoEmEdicao.dataset.dataLimite = dataLimite;
+                    var tituloEl = anotacaoEmEdicao.querySelector('.card-anotacao-titulo');
+                    var dataEl = anotacaoEmEdicao.querySelector('.card-anotacao-data');
+                    var textoEl = anotacaoEmEdicao.querySelector('.card-anotacao-texto');
+                    if (tituloEl) tituloEl.textContent = titulo.trim() || 'Sem título';
+                    if (dataEl) dataEl.textContent = dataLimite ? formatarData(dataLimite) : '';
+                    if (textoEl) textoEl.textContent = texto.trim();
+                    sairEdicaoAnotacao();
+                    saveState();
+                    renderAnotacoesDestaque();
+                    return;
+                }
                 var listaPendente = document.getElementById('lista-anotacoes-pendente');
                 if (!listaPendente) return;
                 var card = renderCardAnotacao({ id: 'anot-' + Date.now(), titulo: titulo.trim(), texto: texto.trim(), dataLimite: dataLimite, status: 'pendente' });
@@ -219,8 +265,7 @@
             var btnCancelarAnotacao = formAnotacoes.querySelector('.btn-cancelar-anotacao');
             if (btnCancelarAnotacao) {
                 btnCancelarAnotacao.addEventListener('click', function () {
-                    formAnotacoes.reset();
-                    formAnotacoes.classList.remove('visivel');
+                    sairEdicaoAnotacao();
                 });
             }
         }
@@ -1165,6 +1210,9 @@
                 '  <h4 class="card-anotacao-titulo">' + escapeHtml(titulo || 'Sem título') + '</h4>' +
                 '  <span class="card-anotacao-data">' + (dataLimite ? formatarData(dataLimite) : '') + '</span>' +
                 '  <div class="card-anotacao-acoes">' +
+                '    <button type="button" class="btn-editar-anotacao" aria-label="Editar anotação" title="Editar">' +
+                '      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+                '    </button>' +
                 '    <select class="select-status-anotacao" title="Alterar status" aria-label="Status da anotação">' +
                 '      <option value="pendente"' + (status === 'pendente' ? ' selected' : '') + '>Pendente</option>' +
                 '      <option value="andamento"' + (status === 'andamento' ? ' selected' : '') + '>Andamento</option>' +
@@ -1174,6 +1222,9 @@
                 '  </div>' +
                 '</div>' +
                 '<div class="card-anotacao-texto">' + escapeHtml(texto || '') + '</div>';
+            card.querySelector('.btn-editar-anotacao').addEventListener('click', function () {
+                if (typeof abrirEdicaoAnotacao === 'function') abrirEdicaoAnotacao(card);
+            });
             card.querySelector('.btn-excluir-anotacao').addEventListener('click', function () {
                 abrirModalExcluir(card);
             });
