@@ -1167,7 +1167,33 @@ body.has-usuarios .tabela-gasto-mensal td.col-usuario {
     background: #b91c1c;
 }
 
-/* Movimentações Diversas - Botão e lista dinâmica */
+/* Movimentações Diversas - Select e lista dinâmica */
+.campo-select-movimentacoes {
+    margin-bottom: 1rem;
+}
+.campo-select-movimentacoes label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+    color: var(--cor-texto);
+}
+.select-movimentacoes {
+    width: 100%;
+    max-width: 320px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.95rem;
+    font-family: inherit;
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+    background: var(--cor-card);
+    color: var(--cor-texto);
+}
+.select-movimentacoes:focus {
+    outline: none;
+    border-color: var(--cor-destaque);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
 .btn-adicionar-gastos {
     width: 100%;
     padding: 0.75rem 1rem;

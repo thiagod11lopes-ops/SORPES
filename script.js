@@ -647,6 +647,39 @@
         let cardEmEdicaoMensal = null;
         const btnAdicionarGastoMensal = document.getElementById('btn-adicionar-gasto-mensal');
         const listaGastosMensais = document.getElementById('lista-gastos-mensais');
+        const selectMovimentacoes = document.getElementById('select-movimentacoes');
+
+        function aplicarVisibilidadeCardMovimentacao() {
+            if (!selectMovimentacoes || !listaGastosMensais) return;
+            var val = selectMovimentacoes.value;
+            listaGastosMensais.querySelectorAll('.card-gasto-mensal').forEach(function (card) {
+                card.style.display = (val && card.dataset.id === val) ? '' : 'none';
+            });
+        }
+
+        function atualizarSelectMovimentacoes() {
+            if (!selectMovimentacoes || !listaGastosMensais) return;
+            var cards = listaGastosMensais.querySelectorAll('.card-gasto-mensal');
+            var selected = selectMovimentacoes.value;
+            selectMovimentacoes.innerHTML = '';
+            if (cards.length === 0) {
+                selectMovimentacoes.appendChild(new Option('Nenhuma movimentação', ''));
+                selectMovimentacoes.value = '';
+            } else {
+                cards.forEach(function (card, i) {
+                    var tituloEl = card.querySelector('.titulo-bloco');
+                    var titulo = tituloEl ? tituloEl.textContent.trim() : '';
+                    if (!titulo) titulo = 'Bloco ' + (i + 1);
+                    selectMovimentacoes.appendChild(new Option(titulo, card.dataset.id));
+                });
+                if (selected && listaGastosMensais.querySelector('.card-gasto-mensal[data-id="' + selected + '"]')) {
+                    selectMovimentacoes.value = selected;
+                } else {
+                    selectMovimentacoes.value = cards[0].dataset.id;
+                }
+                aplicarVisibilidadeCardMovimentacao();
+            }
+        }
 
         function criarCardGastoMensal(dados) {
             const id = dados && dados.id ? dados.id : 'gasto-mensal-' + Date.now();
@@ -820,16 +853,26 @@
             card.querySelector('.titulo-bloco').addEventListener('blur', function () {
                 aplicarEstruturaOutros(card);
                 saveState();
+                atualizarSelectMovimentacoes();
             });
             aplicarEstruturaOutros(card);
             verificarLimiteCard(card);
             return card;
         }
 
+        if (selectMovimentacoes) {
+            selectMovimentacoes.addEventListener('change', aplicarVisibilidadeCardMovimentacao);
+        }
+
         btnAdicionarGastoMensal.addEventListener('click', function () {
-            criarCardGastoMensal(null);
+            var card = criarCardGastoMensal(null);
             applyVisibilityUsuarios();
             saveState();
+            atualizarSelectMovimentacoes();
+            if (selectMovimentacoes && card) {
+                selectMovimentacoes.value = card.dataset.id;
+                aplicarVisibilidadeCardMovimentacao();
+            }
         });
 
         (function setupArrastarCards() {
@@ -1252,6 +1295,7 @@
             (monthData.gastosMensais || []).forEach(function (c) {
                 criarCardGastoMensal(c);
             });
+            atualizarSelectMovimentacoes();
 
             const tbodyReceitas = document.querySelector('#tabela-receitas tbody');
             const tbodyGanhosFuturos = document.querySelector('#tabela-ganhos-futuros tbody');
@@ -1363,8 +1407,10 @@
                     cardEmEdicaoMensal = null;
                 }
                 const cardMensalRef = cardParaExcluir.tagName === 'TR' ? cardParaExcluir.closest('.card-gasto-mensal') : null;
+                const eraCardMensal = cardParaExcluir.classList && cardParaExcluir.classList.contains('card-gasto-mensal');
                 cardParaExcluir.remove();
                 if (cardMensalRef) verificarLimiteCard(cardMensalRef);
+                if (eraCardMensal) atualizarSelectMovimentacoes();
                 fecharModalExcluir();
                 atualizarTotais();
                 saveState();
