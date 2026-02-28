@@ -33,27 +33,29 @@
                         <span class="titulo-descricao">Sistema de Organização pessoal</span>
                     </div>
                 </div>
-                <button type="button" class="btn-backup-header" id="btn-backup-header" title="Backup dos dados - último: nunca">
-                    <span class="btn-backup-icone" aria-hidden="true">
+                <div class="cabecalho-acoes">
+                    <button type="button" class="btn-backup-header" id="btn-backup-header" title="Backup dos dados - último: nunca">
+                        <span class="btn-backup-icone" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                        <span class="btn-backup-data" id="backup-ultima-data">nunca</span>
+                    </button>
+                    <button type="button" class="btn-usuarios-header" id="btn-usuarios-header" title="Cadastrar usuários do sistema">
+                        <span class="btn-usuarios-header-icone" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                        <span class="btn-usuarios-header-texto">Usuários</span>
+                    </button>
+                    <button type="button" class="btn-estatistica" id="btn-estatistica" title="Estatísticas" aria-label="Estatísticas">
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M3 3v18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M7 16v-5M11 16v-2M15 16v-7M19 16v-10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                    </span>
-                    <span class="btn-backup-data" id="backup-ultima-data">nunca</span>
-                </button>
-                <button type="button" class="btn-usuarios-header" id="btn-usuarios-header" title="Cadastrar usuários do sistema">
-                    <span class="btn-usuarios-header-icone" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
-                    <span class="btn-usuarios-header-texto">Usuários</span>
-                </button>
+                    </button>
+                </div>
             </div>
-            <button type="button" class="btn-estatistica" id="btn-estatistica" title="Estatísticas" aria-label="Estatísticas">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path d="M3 3v18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M7 16v-5M11 16v-2M15 16v-7M19 16v-10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </button>
             <div class="cabecalho-direita">
             <div class="cabecalho-totais" id="cabecalho-totais">
                 <button type="button" class="btn-ver-mais-cards" id="btn-ver-mais-cards" title="Exibir ou ocultar todos os cards" aria-label="Exibir ou ocultar todos os cards">
@@ -93,7 +95,12 @@
             <button type="button" class="tab-botao" data-tab="mensais">Movimentações Diversas</button>
             <button type="button" class="tab-botao" data-tab="receitas">Ganhos Registrados</button>
             <button type="button" class="tab-botao" data-tab="ganhos-futuros">Ganhos futuros</button>
+            <button type="button" class="tab-botao" data-tab="anotacoes">Anotações</button>
         </nav>
+
+        <div class="anotacoes-destaque-wrapper" id="anotacoes-destaque-wrapper" aria-live="polite">
+            <div class="anotacoes-destaque" id="anotacoes-destaque"></div>
+        </div>
 
         <div class="tab-paineis">
             <div class="tab-painel ativo" id="painel-fixos">
@@ -200,16 +207,42 @@
 
             <div class="tab-painel" id="painel-mensais">
         <section class="bloco gastos-mensais">
-            <h2>Movimentações Diversas</h2>
-            <div class="bloco-conteudo">
-                <div class="campo campo-select-movimentacoes">
-                    <label for="select-movimentacoes">Movimentações</label>
-                    <select id="select-movimentacoes" class="select-movimentacoes" title="Selecione a movimentação para exibir">
-                        <option value="">Selecione...</option>
-                    </select>
-                </div>
+            <div class="bloco-titulo-row bloco-titulo-row-movimentacoes">
+                <h2>Movimentações Diversas</h2>
+                <select id="select-movimentacoes" class="select-movimentacoes" title="Selecione a movimentação para exibir" aria-label="Selecione a movimentação para exibir">
+                    <option value="">Selecione...</option>
+                </select>
                 <button type="button" class="btn-adicionar-gastos" id="btn-adicionar-gasto-mensal">+ Adicionar movimentação</button>
-                <div class="lista-gastos-mensais" id="lista-gastos-mensais"></div>
+            </div>
+            <div class="bloco-conteudo bloco-conteudo-movimentacoes">
+                <div class="movimentacoes-linha-cards">
+                    <aside class="movimentacoes-painel-esquerda card-lancamento" aria-label="Campos para lançamento">
+                        <h3 class="movimentacoes-painel-titulo">Lançamento</h3>
+                        <div class="movimentacoes-form" id="movimentacoes-form">
+                            <div class="campo">
+                                <label for="movimentacao-data">Data do gasto</label>
+                                <input type="date" id="movimentacao-data" name="data" required>
+                            </div>
+                            <div class="campo campo-descricao-mensal">
+                                <label for="movimentacao-descricao">Descrição</label>
+                                <input type="text" id="movimentacao-descricao" name="descricao" placeholder="Ex: Compras diversas">
+                            </div>
+                            <div class="campo">
+                                <label for="movimentacao-valor">Valor</label>
+                                <input type="number" id="movimentacao-valor" name="valor" placeholder="0,00" step="0.01" min="0" required>
+                            </div>
+                            <div class="campo campo-dono-movimentacao" id="campo-dono-movimentacao" style="display:none">
+                                <label for="movimentacao-usuario">Dono</label>
+                                <select id="movimentacao-usuario" name="usuario"><option value="">— Nenhum —</option></select>
+                            </div>
+                            <div class="form-botoes-mensal">
+                                <button type="button" class="btn-adicionar-item" id="btn-movimentacao-adicionar">Adicionar item</button>
+                                <button type="button" class="btn-cancelar-edicao-mensal" id="btn-movimentacao-cancelar" style="display:none">Cancelar</button>
+                            </div>
+                        </div>
+                    </aside>
+                    <div class="lista-gastos-mensais" id="lista-gastos-mensais"></div>
+                </div>
             </div>
         </section>
             </div>
@@ -302,6 +335,51 @@
                 </table>
             </div>
         </section>
+            </div>
+
+            <div class="tab-painel" id="painel-anotacoes">
+                <section class="bloco anotacoes">
+                    <div class="bloco-titulo-row bloco-titulo-row-anotacoes">
+                        <h2>Anotações</h2>
+                        <button type="button" class="btn-plus-titulo btn-plus-anotacao-moderno" id="btn-plus-anotacoes" aria-label="Abrir campos para adicionar anotação" title="Adicionar anotação">+</button>
+                    </div>
+                    <div class="bloco-conteudo bloco-conteudo-anotacoes">
+                        <form class="formulario-anotacao formulario-anotacao-moderno" id="form-anotacoes">
+                            <div class="formulario-anotacao-grid">
+                                <div class="campo campo-anotacao">
+                                    <label for="anotacao-titulo">Título</label>
+                                    <input type="text" id="anotacao-titulo" name="titulo" placeholder="Ex: Reunião importante" required>
+                                </div>
+                                <div class="campo campo-anotacao campo-data">
+                                    <label for="anotacao-data-limite">Data limite</label>
+                                    <input type="date" id="anotacao-data-limite" name="dataLimite" required>
+                                </div>
+                            </div>
+                            <div class="campo campo-anotacao">
+                                <label for="anotacao-texto">Texto</label>
+                                <textarea id="anotacao-texto" name="texto" rows="3" placeholder="Descreva sua anotação..."></textarea>
+                            </div>
+                            <div class="form-botoes form-botoes-anotacao">
+                                <button type="submit" class="btn-adicionar btn-adicionar-anotacao">Adicionar</button>
+                                <button type="button" class="btn-cancelar-anotacao">Cancelar</button>
+                            </div>
+                        </form>
+                        <div class="anotacoes-colunas">
+                            <div class="anotacoes-coluna" data-status="pendente">
+                                <h3 class="anotacoes-coluna-titulo anotacoes-coluna-pendente">Pendente</h3>
+                                <div class="lista-anotacoes lista-anotacoes-pendente" id="lista-anotacoes-pendente"></div>
+                            </div>
+                            <div class="anotacoes-coluna" data-status="andamento">
+                                <h3 class="anotacoes-coluna-titulo anotacoes-coluna-andamento">Andamento</h3>
+                                <div class="lista-anotacoes lista-anotacoes-andamento" id="lista-anotacoes-andamento"></div>
+                            </div>
+                            <div class="anotacoes-coluna" data-status="finalizada">
+                                <h3 class="anotacoes-coluna-titulo anotacoes-coluna-finalizada">Finalizada</h3>
+                                <div class="lista-anotacoes lista-anotacoes-finalizada" id="lista-anotacoes-finalizada"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
         </div>
             </main>

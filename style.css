@@ -248,7 +248,7 @@ body {
     align-items: center;
     flex-wrap: wrap;
     gap: 1rem;
-    padding: 1.5rem 2rem;
+    padding: 0.85rem 2rem;
     background: var(--cor-card);
     border-bottom: 1px solid var(--cor-borda);
     box-shadow: var(--sombra);
@@ -256,9 +256,17 @@ body {
 
 .cabecalho-esquerda {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+}
+.cabecalho-acoes {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     gap: 0.5rem;
+    flex-shrink: 0;
 }
 
 .btn-backup-header {
@@ -953,6 +961,159 @@ body {
     min-height: 280px;
 }
 
+/* Movimentações: linha topo (select + botão); abaixo, card Lançamento alinhado aos cards */
+.bloco-conteudo-movimentacoes {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+}
+.bloco-titulo-row-movimentacoes {
+    flex-wrap: wrap;
+}
+.bloco-titulo-row-movimentacoes .select-movimentacoes {
+    min-width: 180px;
+    padding: 0.4rem 0.65rem;
+    font-size: 0.875rem;
+    border-radius: 6px;
+    border: 1px solid var(--cor-borda);
+    background: #fff;
+    color: var(--cor-texto);
+}
+.bloco-titulo-row-movimentacoes .select-movimentacoes:focus {
+    outline: none;
+    border-color: var(--cor-destaque);
+}
+.movimentacoes-linha-cards {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1rem;
+    width: 100%;
+    min-height: 0;
+}
+/* Card Lançamento: mesmo estilo dos cards de movimentação para alinhamento visual */
+.movimentacoes-painel-esquerda {
+    flex: 0 0 280px;
+    position: sticky;
+    top: 0.5rem;
+    align-self: flex-start;
+    background: #f8fafc;
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+    padding: 1rem;
+    padding-top: 2rem;
+    box-shadow: var(--sombra);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+.movimentacoes-painel-titulo {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--cor-texto);
+    margin: 0 0 1rem 0;
+    padding: 0;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+}
+.movimentacoes-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+.movimentacoes-form .campo {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+.movimentacoes-form .campo label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--cor-texto-suave);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.movimentacoes-form .campo input,
+.movimentacoes-form .campo select {
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--cor-borda);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    background: #fff;
+    color: var(--cor-texto);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.movimentacoes-form .campo input::placeholder {
+    color: #94a3b8;
+}
+.movimentacoes-form .campo input:focus,
+.movimentacoes-form .campo select:focus {
+    outline: none;
+    border-color: var(--cor-destaque);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+.movimentacoes-form .form-botoes-mensal {
+    margin-top: 0.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.movimentacoes-form .form-botoes-mensal .btn-adicionar-item {
+    flex: 1;
+    min-width: 120px;
+    padding: 0.6rem 1rem;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.05s ease;
+}
+.movimentacoes-form .form-botoes-mensal .btn-adicionar-item:hover {
+    background: #1d4ed8;
+}
+.movimentacoes-form .form-botoes-mensal .btn-adicionar-item:active {
+    transform: scale(0.98);
+}
+.movimentacoes-form .form-botoes-mensal .btn-cancelar-edicao-mensal {
+    padding: 0.6rem 0.9rem;
+    background: transparent;
+    color: var(--cor-texto-suave);
+    border: 1px solid var(--cor-borda);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.movimentacoes-form .form-botoes-mensal .btn-cancelar-edicao-mensal:hover {
+    background: #f1f5f9;
+    color: var(--cor-texto);
+    border-color: #cbd5e1;
+}
+.movimentacoes-linha-cards .lista-gastos-mensais {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+@media (max-width: 768px) {
+    .movimentacoes-linha-cards {
+        flex-direction: column;
+    }
+    .movimentacoes-painel-esquerda {
+        flex: 0 0 auto;
+        position: static;
+        width: 100%;
+    }
+}
+
 /* Formulários de Gastos Fixos e Variáveis ocultos ao abrir a aba; visíveis ao clicar em Adicionar */
 .gastos-fixos .formulario-gasto,
 .gastos-variaveis .formulario-gasto {
@@ -973,6 +1134,322 @@ body {
 .receitas .formulario-receita.visivel,
 .ganhos-futuros .formulario-receita.visivel {
     display: flex;
+}
+
+/* Formulário Anotações - moderno (oculto até clicar em + Nova anotação) */
+.formulario-anotacao {
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 1.5rem;
+}
+.formulario-anotacao.visivel {
+    display: flex;
+}
+.formulario-anotacao-moderno {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+.formulario-anotacao-grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+@media (max-width: 560px) {
+    .formulario-anotacao-grid {
+        grid-template-columns: 1fr;
+    }
+}
+.formulario-anotacao-moderno .campo-anotacao {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+.formulario-anotacao-moderno .campo-anotacao label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--cor-texto-suave);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.formulario-anotacao-moderno .campo-anotacao input,
+.formulario-anotacao-moderno .campo-anotacao textarea {
+    padding: 0.6rem 0.85rem;
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    background: #fff;
+    color: var(--cor-texto);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.formulario-anotacao-moderno .campo-anotacao input:focus,
+.formulario-anotacao-moderno .campo-anotacao textarea:focus {
+    outline: none;
+    border-color: var(--cor-destaque);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+.formulario-anotacao-moderno textarea {
+    resize: vertical;
+    min-height: 72px;
+}
+.form-botoes-anotacao {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+.btn-adicionar-anotacao {
+    padding: 0.6rem 1.25rem;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.05s ease, box-shadow 0.2s ease;
+}
+.btn-adicionar-anotacao:hover {
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+}
+.btn-adicionar-anotacao:active {
+    transform: scale(0.98);
+}
+.formulario-anotacao-moderno .btn-cancelar-anotacao {
+    padding: 0.6rem 1rem;
+    background: transparent;
+    color: var(--cor-texto-suave);
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.formulario-anotacao-moderno .btn-cancelar-anotacao:hover {
+    background: #f1f5f9;
+    color: var(--cor-texto);
+}
+.btn-plus-anotacao-moderno {
+    padding: 0.5rem 0.65rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%);
+    color: var(--cor-destaque);
+    border: 1px solid rgba(37, 99, 235, 0.25);
+    transition: background 0.2s ease, transform 0.05s ease;
+}
+.btn-plus-anotacao-moderno:hover {
+    background: rgba(37, 99, 235, 0.15);
+    transform: translateY(-1px);
+}
+
+/* Anotações em destaque (vencidas ou para hoje) - topo, centralizado, borda vermelha */
+.anotacoes-destaque-wrapper {
+    display: none;
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto 1rem auto;
+    padding: 0 1rem;
+}
+.anotacoes-destaque {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
+}
+.anotacao-destaque-item {
+    position: relative;
+    width: 100%;
+    padding: 1rem 1.25rem;
+    padding-right: 2.5rem;
+    background: #fef2f2;
+    border: 2px solid #dc2626;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.15);
+}
+.anotacao-destaque-fechar {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    background: rgba(220, 38, 38, 0.2);
+    color: #991b1b;
+    border-radius: 6px;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+.anotacao-destaque-fechar:hover {
+    background: #dc2626;
+    color: #fff;
+}
+.anotacao-destaque-titulo {
+    display: block;
+    font-size: 1rem;
+    color: #991b1b;
+    margin-bottom: 0.25rem;
+}
+.anotacao-destaque-data {
+    display: block;
+    font-size: 0.8rem;
+    color: #b91c1c;
+    margin-bottom: 0.5rem;
+}
+.anotacao-destaque-texto {
+    font-size: 0.9rem;
+    color: var(--cor-texto);
+    margin: 0;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Bloco Anotações - três colunas (Pendente / Andamento / Finalizada) */
+.bloco-conteudo-anotacoes {
+    padding: 1rem 1.25rem;
+}
+.anotacoes-colunas {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    align-items: start;
+}
+@media (max-width: 900px) {
+    .anotacoes-colunas {
+        grid-template-columns: 1fr;
+    }
+}
+.anotacoes-coluna {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 1rem;
+    min-height: 200px;
+    border: 1px solid var(--cor-borda);
+}
+.anotacoes-coluna-titulo {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin: 0 0 0.75rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid transparent;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.anotacoes-coluna-pendente {
+    color: #b45309;
+    border-bottom-color: #f59e0b;
+}
+.anotacoes-coluna-andamento {
+    color: #2563eb;
+    border-bottom-color: #3b82f6;
+}
+.anotacoes-coluna-finalizada {
+    color: #059669;
+    border-bottom-color: #10b981;
+}
+.lista-anotacoes {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.card-anotacao {
+    background: #fff;
+    border-radius: 10px;
+    padding: 1rem 1.15rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border-left: 4px solid var(--cor-borda);
+    transition: box-shadow 0.2s ease, transform 0.05s ease;
+}
+.card-anotacao:hover {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+.card-anotacao-status-pendente {
+    border-left-color: #f59e0b;
+}
+.card-anotacao-status-andamento {
+    border-left-color: #3b82f6;
+}
+.card-anotacao-status-finalizada {
+    border-left-color: #10b981;
+    opacity: 0.92;
+}
+.card-anotacao-cabecalho {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+.card-anotacao-titulo {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--cor-texto);
+    margin: 0;
+    line-height: 1.3;
+}
+.card-anotacao-data {
+    font-size: 0.75rem;
+    color: var(--cor-texto-suave);
+    white-space: nowrap;
+}
+.card-anotacao-acoes {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+}
+.select-status-anotacao {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.75rem;
+    border: 1px solid var(--cor-borda);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--cor-texto);
+    cursor: pointer;
+    font-weight: 500;
+    min-width: 100px;
+}
+.select-status-anotacao:focus {
+    outline: none;
+    border-color: var(--cor-destaque);
+}
+.btn-excluir-anotacao {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    background: #f1f5f9;
+    color: var(--cor-texto-suave);
+    border-radius: 6px;
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.btn-excluir-anotacao:hover {
+    background: #fee2e2;
+    color: #dc2626;
+}
+.card-anotacao-texto {
+    font-size: 0.875rem;
+    color: var(--cor-texto);
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
 /* Formulário de gastos */
@@ -1231,7 +1708,7 @@ body.has-usuarios .tabela-gasto-mensal td.col-usuario {
     flex-direction: column;
     gap: 0.75rem;
     width: 100%;
-    max-width: 380px;
+    max-width: 100%;
 }
 
 .card-gasto-mensal .campo {
@@ -1426,7 +1903,7 @@ body.has-usuarios .tabela-gasto-mensal td.col-usuario {
     background: #cbd5e1;
 }
 
-/* Corpo do card (limite, formulário, tabela) oculto por padrão; visível ao clicar */
+/* Corpo do card (limite, layout form + tabela) oculto por padrão; visível ao clicar */
 .card-gasto-mensal-corpo {
     display: none;
     flex-direction: column;
@@ -1434,6 +1911,16 @@ body.has-usuarios .tabela-gasto-mensal td.col-usuario {
 }
 .card-gasto-mensal.card-gasto-mensal-aberto .card-gasto-mensal-corpo {
     display: flex;
+}
+
+/* Card: apenas limite + tabela (form fica no painel esquerda) */
+.card-gasto-mensal-tabela-wrapper {
+    overflow-x: auto;
+    width: 100%;
+}
+.card-gasto-mensal-tabela-wrapper .tabela-gasto-mensal {
+    margin-top: 0;
+    min-width: 400px;
 }
 .card-gasto-mensal.card-gasto-mensal-aberto .card-gasto-mensal-chevron {
     transform: rotate(180deg);
@@ -1724,9 +2211,10 @@ body.has-usuarios .tabela-gasto-mensal td.col-usuario {
 /* Identificação visual sutil por bloco */
 .gastos-fixos .bloco-titulo-row { border-left: 4px solid #059669; }
 .gastos-variaveis .bloco-titulo-row { border-left: 4px solid #d97706; }
-.gastos-mensais h2 { border-left: 4px solid #2563eb; }
+.gastos-mensais .bloco-titulo-row-movimentacoes { border-left: 4px solid #2563eb; }
 .receitas .bloco-titulo-row { border-left: 4px solid #10b981; }
 .ganhos-futuros .bloco-titulo-row { border-left: 4px solid #8b5cf6; }
+.anotacoes .bloco-titulo-row-anotacoes { border-left: 4px solid #ea580c; }
 
 /* ========== Modal Estatísticas - Design moderno e animado ========== */
 .modal-estatisticas {

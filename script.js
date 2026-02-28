@@ -58,7 +58,7 @@
         var state = { meses: {}, mesAtivo: '2026-02', anoAtivo: '2026', usuarios: [] };
 
         function getEmptyMonthData() {
-            return { gastosFixos: [], gastosVariaveis: [], gastosMensais: [], receitas: [], ganhosFuturos: [] };
+            return { gastosFixos: [], gastosVariaveis: [], gastosMensais: [], receitas: [], ganhosFuturos: [], anotacoes: [] };
         }
 
         function getPreviousMonthKey(chave) {
@@ -93,7 +93,8 @@
                 gastosVariaveis: variaveis,
                 gastosMensais: mensais,
                 receitas: [],
-                ganhosFuturos: []
+                ganhosFuturos: [],
+                anotacoes: (ant.anotacoes || []).map(function (a) { return { id: a.id || 'anot-' + Date.now() + '-' + Math.random().toString(36).slice(2), titulo: a.titulo || '', texto: a.texto || '', dataLimite: a.dataLimite || '', status: a.status || 'pendente' }; })
             };
         }
 
@@ -110,6 +111,7 @@
                     if (d.gastosMensais[i].limite && d.gastosMensais[i].limite > 0) return true;
                 }
             }
+            if (d.anotacoes && d.anotacoes.length > 0) return true;
             return false;
         }
 
@@ -192,6 +194,36 @@
                 form.classList.toggle('visivel');
             }
         });
+
+        var btnPlusAnotacoes = document.getElementById('btn-plus-anotacoes');
+        var formAnotacoes = document.getElementById('form-anotacoes');
+        if (btnPlusAnotacoes && formAnotacoes) {
+            btnPlusAnotacoes.addEventListener('click', function () {
+                formAnotacoes.classList.toggle('visivel');
+            });
+            formAnotacoes.addEventListener('submit', function (e) {
+                e.preventDefault();
+                var titulo = (formAnotacoes.querySelector('[name="titulo"]') || {}).value || '';
+                var texto = (formAnotacoes.querySelector('[name="texto"]') || {}).value || '';
+                var dataLimite = (formAnotacoes.querySelector('[name="dataLimite"]') || {}).value || '';
+                if (!titulo.trim() || !dataLimite) return;
+                var listaPendente = document.getElementById('lista-anotacoes-pendente');
+                if (!listaPendente) return;
+                var card = renderCardAnotacao({ id: 'anot-' + Date.now(), titulo: titulo.trim(), texto: texto.trim(), dataLimite: dataLimite, status: 'pendente' });
+                listaPendente.appendChild(card);
+                formAnotacoes.reset();
+                formAnotacoes.classList.remove('visivel');
+                saveState();
+                renderAnotacoesDestaque();
+            });
+            var btnCancelarAnotacao = formAnotacoes.querySelector('.btn-cancelar-anotacao');
+            if (btnCancelarAnotacao) {
+                btnCancelarAnotacao.addEventListener('click', function () {
+                    formAnotacoes.reset();
+                    formAnotacoes.classList.remove('visivel');
+                });
+            }
+        }
 
         formularios.forEach(function (form) {
             const btnAdicionar = form.querySelector('.btn-adicionar');
@@ -717,27 +749,11 @@
                 '    <span class="disponivel-gasto" title="Valor que ainda pode ser gasto neste bloco"></span>' +
                 '  </div>' +
                 '</div>' +
-                '<div class="card-gasto-mensal-form">' +
-                '  <div class="campo">' +
-                '    <label>Data do gasto</label>' +
-                '    <input type="date" name="data" required>' +
+                '<div class="card-gasto-mensal-tabela-wrapper">' +
+                '  <table class="tabela-gasto-mensal">' +
+                '    <thead><tr><th>Data</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr></thead>' +
+                '    <tbody></tbody></table>' +
                 '  </div>' +
-                '  <div class="campo campo-descricao-mensal">' +
-                '    <label>Descrição</label>' +
-                '    <input type="text" name="descricao" placeholder="Ex: Compras diversas">' +
-                '  </div>' +
-                '  <div class="campo">' +
-                '    <label>Valor</label>' +
-                '    <input type="number" name="valor" placeholder="0,00" step="0.01" min="0" required>' +
-                '  </div>' +
-                '  <div class="form-botoes-mensal">' +
-                '    <button type="button" class="btn-adicionar-item">Adicionar item</button>' +
-                '    <button type="button" class="btn-cancelar-edicao-mensal" style="display:none">Cancelar</button>' +
-                '  </div>' +
-                '</div>' +
-                '<table class="tabela-gasto-mensal">' +
-                '  <thead><tr><th>Data</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr></thead>' +
-                '  <tbody></tbody></table>' +
                 '</div>';
             listaGastosMensais.appendChild(card);
 
@@ -790,59 +806,6 @@
                 abrirModalExcluir(card);
             });
 
-            card.querySelector('.btn-adicionar-item').addEventListener('click', function () {
-                const dataInput = card.querySelector('[name="data"]');
-                const valorInput = card.querySelector('[name="valor"]');
-                const descricaoInput = card.querySelector('[name="descricao"]');
-                const btnAdicionar = card.querySelector('.btn-adicionar-item');
-                const btnCancelar = card.querySelector('.btn-cancelar-edicao-mensal');
-
-                const data = dataInput.value;
-                const valor = parseFloat(valorInput.value);
-                const descricao = descricaoInput ? descricaoInput.value.trim() : '';
-                var usuarioSel = card.querySelector('select[name="usuario"]');
-                var usuario = usuarioSel ? usuarioSel.value : '';
-
-                if (!data || isNaN(valor) || valor < 0) return;
-
-                const tbody = card.querySelector('.tabela-gasto-mensal tbody');
-                const colValorIdx = 2;
-                const colDescIdx = 1;
-
-                if (linhaEmEdicaoMensal && cardEmEdicaoMensal === card) {
-                    linhaEmEdicaoMensal.dataset.data = data;
-                    linhaEmEdicaoMensal.dataset.valor = valor;
-                    linhaEmEdicaoMensal.dataset.descricao = descricao || '';
-                    if (usuario !== undefined) linhaEmEdicaoMensal.dataset.usuario = usuario || '';
-                    linhaEmEdicaoMensal.cells[colDescIdx].textContent = descricao || '';
-                    linhaEmEdicaoMensal.cells[0].textContent = formatarData(data);
-                    linhaEmEdicaoMensal.cells[colValorIdx].textContent = 'R$ ' + formatarValor(valor);
-                    linhaEmEdicaoMensal.cells[colValorIdx].className = 'valor-real';
-                    var colU = linhaEmEdicaoMensal.querySelector('td.col-usuario');
-                    if (colU) colU.textContent = getNomeUsuario(usuario);
-                    sairEdicaoMensal(card);
-                    linhaEmEdicaoMensal = null;
-                    cardEmEdicaoMensal = null;
-                } else {
-                    const tr = criarLinhaGastoMensal(data, valor, descricao, usuario);
-                    tbody.appendChild(tr);
-                    vincularEventosLinhaMensal(tr, card);
-                }
-
-                dataInput.value = '';
-                valorInput.value = '';
-                if (descricaoInput) descricaoInput.value = '';
-                atualizarTotais();
-                verificarLimiteCard(card);
-                saveState();
-            });
-
-            card.querySelector('.btn-cancelar-edicao-mensal').addEventListener('click', function () {
-                sairEdicaoMensal(card);
-                linhaEmEdicaoMensal = null;
-                cardEmEdicaoMensal = null;
-            });
-
             const limiteInput = card.querySelector('.input-limite');
             limiteInput.addEventListener('input', function () {
                 formatarInputMoeda(this);
@@ -870,7 +833,65 @@
         }
 
         if (selectMovimentacoes) {
-            selectMovimentacoes.addEventListener('change', aplicarVisibilidadeCardMovimentacao);
+            selectMovimentacoes.addEventListener('change', function () {
+                limparFormMovimentacao();
+                linhaEmEdicaoMensal = null;
+                cardEmEdicaoMensal = null;
+                aplicarVisibilidadeCardMovimentacao();
+            });
+        }
+
+        var btnMovimentacaoAdicionar = document.getElementById('btn-movimentacao-adicionar');
+        var btnMovimentacaoCancelar = document.getElementById('btn-movimentacao-cancelar');
+        if (btnMovimentacaoAdicionar) {
+            btnMovimentacaoAdicionar.addEventListener('click', function () {
+                var dataEl = document.getElementById('movimentacao-data');
+                var valorEl = document.getElementById('movimentacao-valor');
+                var descricaoEl = document.getElementById('movimentacao-descricao');
+                var usuarioEl = document.getElementById('movimentacao-usuario');
+                var data = dataEl ? dataEl.value : '';
+                var valor = valorEl ? (parseFloat(valorEl.value) || 0) : NaN;
+                var descricao = descricaoEl ? descricaoEl.value.trim() : '';
+                var usuario = usuarioEl ? usuarioEl.value : '';
+                if (!data || isNaN(valor) || valor < 0) return;
+                var sel = document.getElementById('select-movimentacoes');
+                var cardId = sel ? sel.value : '';
+                if (!cardId) return;
+                var card = listaGastosMensais.querySelector('.card-gasto-mensal[data-id="' + cardId + '"]');
+                if (!card) return;
+                var tbody = card.querySelector('.tabela-gasto-mensal tbody');
+                var colValorIdx = 2;
+                var colDescIdx = 1;
+                if (linhaEmEdicaoMensal && cardEmEdicaoMensal === card) {
+                    linhaEmEdicaoMensal.dataset.data = data;
+                    linhaEmEdicaoMensal.dataset.valor = valor;
+                    linhaEmEdicaoMensal.dataset.descricao = descricao || '';
+                    linhaEmEdicaoMensal.dataset.usuario = usuario || '';
+                    linhaEmEdicaoMensal.cells[colDescIdx].textContent = descricao || '';
+                    linhaEmEdicaoMensal.cells[0].textContent = formatarData(data);
+                    linhaEmEdicaoMensal.cells[colValorIdx].textContent = 'R$ ' + formatarValor(valor);
+                    linhaEmEdicaoMensal.cells[colValorIdx].className = 'valor-real';
+                    var colU = linhaEmEdicaoMensal.querySelector('td.col-usuario');
+                    if (colU) colU.textContent = getNomeUsuario(usuario);
+                    linhaEmEdicaoMensal = null;
+                    cardEmEdicaoMensal = null;
+                } else {
+                    var tr = criarLinhaGastoMensal(data, valor, descricao, usuario);
+                    tbody.appendChild(tr);
+                    vincularEventosLinhaMensal(tr, card);
+                }
+                limparFormMovimentacao();
+                atualizarTotais();
+                verificarLimiteCard(card);
+                saveState();
+            });
+        }
+        if (btnMovimentacaoCancelar) {
+            btnMovimentacaoCancelar.addEventListener('click', function () {
+                linhaEmEdicaoMensal = null;
+                cardEmEdicaoMensal = null;
+                limparFormMovimentacao();
+            });
         }
 
         btnAdicionarGastoMensal.addEventListener('click', function () {
@@ -944,14 +965,18 @@
         function vincularEventosLinhaMensal(tr, card) {
             tr.querySelector('.btn-editar').addEventListener('click', function () {
                 if (linhaEmEdicaoMensal) return;
-                card.querySelector('[name="data"]').value = tr.dataset.data || '';
-                card.querySelector('[name="valor"]').value = tr.dataset.valor || '';
-                const descricaoInput = card.querySelector('[name="descricao"]');
-                if (descricaoInput) descricaoInput.value = tr.dataset.descricao || '';
-                var usuarioSel = card.querySelector('select[name="usuario"]');
-                if (usuarioSel) usuarioSel.value = tr.dataset.usuario || '';
-                card.querySelector('.btn-adicionar-item').textContent = 'Atualizar';
-                card.querySelector('.btn-cancelar-edicao-mensal').style.display = 'inline-block';
+                var dataEl = document.getElementById('movimentacao-data');
+                var valorEl = document.getElementById('movimentacao-valor');
+                var descricaoEl = document.getElementById('movimentacao-descricao');
+                var usuarioEl = document.getElementById('movimentacao-usuario');
+                var btnAdd = document.getElementById('btn-movimentacao-adicionar');
+                var btnCancel = document.getElementById('btn-movimentacao-cancelar');
+                if (dataEl) dataEl.value = tr.dataset.data || '';
+                if (valorEl) valorEl.value = tr.dataset.valor || '';
+                if (descricaoEl) descricaoEl.value = tr.dataset.descricao || '';
+                if (usuarioEl) usuarioEl.value = tr.dataset.usuario || '';
+                if (btnAdd) btnAdd.textContent = 'Atualizar';
+                if (btnCancel) btnCancel.style.display = 'inline-block';
                 linhaEmEdicaoMensal = tr;
                 cardEmEdicaoMensal = card;
             });
@@ -960,13 +985,23 @@
             });
         }
 
-        function sairEdicaoMensal(card) {
-            card.querySelector('.btn-adicionar-item').textContent = 'Adicionar item';
-            card.querySelector('.btn-cancelar-edicao-mensal').style.display = 'none';
-            card.querySelector('[name="data"]').value = '';
-            card.querySelector('[name="valor"]').value = '';
-            const descricaoInput = card.querySelector('[name="descricao"]');
-            if (descricaoInput) descricaoInput.value = '';
+        function limparFormMovimentacao() {
+            var dataEl = document.getElementById('movimentacao-data');
+            var valorEl = document.getElementById('movimentacao-valor');
+            var descricaoEl = document.getElementById('movimentacao-descricao');
+            var usuarioEl = document.getElementById('movimentacao-usuario');
+            var btnAdd = document.getElementById('btn-movimentacao-adicionar');
+            var btnCancel = document.getElementById('btn-movimentacao-cancelar');
+            if (dataEl) dataEl.value = '';
+            if (valorEl) valorEl.value = '';
+            if (descricaoEl) descricaoEl.value = '';
+            if (usuarioEl) usuarioEl.value = '';
+            if (btnAdd) btnAdd.textContent = 'Adicionar item';
+            if (btnCancel) btnCancel.style.display = 'none';
+        }
+
+        function sairEdicaoMensal() {
+            limparFormMovimentacao();
         }
 
         function parsearValorMoeda(str) {
@@ -1082,7 +1117,135 @@
                 if (tr.dataset.usuario) o.usuario = tr.dataset.usuario;
                 ganhosFuturos.push(o);
             });
-            return { gastosFixos, gastosVariaveis, gastosMensais, receitas, ganhosFuturos };
+            const anotacoes = [];
+            ['pendente', 'andamento', 'finalizada'].forEach(function (status) {
+                var list = document.getElementById('lista-anotacoes-' + status);
+                if (!list) return;
+                list.querySelectorAll('.card-anotacao').forEach(function (card) {
+                    anotacoes.push({
+                        id: card.dataset.id || 'anot-' + Date.now(),
+                        titulo: card.dataset.titulo || '',
+                        texto: card.dataset.texto || '',
+                        dataLimite: card.dataset.dataLimite || '',
+                        status: card.dataset.status || status
+                    });
+                });
+            });
+            return { gastosFixos, gastosVariaveis, gastosMensais, receitas, ganhosFuturos, anotacoes };
+        }
+
+        function getDataHoje() {
+            var d = new Date();
+            var y = d.getFullYear();
+            var m = String(d.getMonth() + 1).padStart(2, '0');
+            var day = String(d.getDate()).padStart(2, '0');
+            return y + '-' + m + '-' + day;
+        }
+
+        function getListaAnotacoesPorStatus(status) {
+            var id = 'lista-anotacoes-' + (status || 'pendente');
+            return document.getElementById(id);
+        }
+
+        function renderCardAnotacao(a) {
+            var id = a.id || 'anot-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+            var titulo = (a.titulo || '').trim();
+            var texto = (a.texto || '').trim();
+            var dataLimite = a.dataLimite || '';
+            var status = (a.status || 'pendente');
+            var card = document.createElement('div');
+            card.className = 'card-anotacao card-anotacao-status-' + status;
+            card.dataset.id = id;
+            card.dataset.titulo = titulo;
+            card.dataset.texto = texto;
+            card.dataset.dataLimite = dataLimite;
+            card.dataset.status = status;
+            card.innerHTML =
+                '<div class="card-anotacao-cabecalho">' +
+                '  <h4 class="card-anotacao-titulo">' + escapeHtml(titulo || 'Sem título') + '</h4>' +
+                '  <span class="card-anotacao-data">' + (dataLimite ? formatarData(dataLimite) : '') + '</span>' +
+                '  <div class="card-anotacao-acoes">' +
+                '    <select class="select-status-anotacao" title="Alterar status" aria-label="Status da anotação">' +
+                '      <option value="pendente"' + (status === 'pendente' ? ' selected' : '') + '>Pendente</option>' +
+                '      <option value="andamento"' + (status === 'andamento' ? ' selected' : '') + '>Andamento</option>' +
+                '      <option value="finalizada"' + (status === 'finalizada' ? ' selected' : '') + '>Finalizada</option>' +
+                '    </select>' +
+                '    <button type="button" class="btn-excluir-anotacao" aria-label="Excluir anotação" title="Excluir">×</button>' +
+                '  </div>' +
+                '</div>' +
+                '<div class="card-anotacao-texto">' + escapeHtml(texto || '') + '</div>';
+            card.querySelector('.btn-excluir-anotacao').addEventListener('click', function () {
+                abrirModalExcluir(card);
+            });
+            card.querySelector('.select-status-anotacao').addEventListener('change', function () {
+                var novoStatus = this.value;
+                card.dataset.status = novoStatus;
+                card.className = 'card-anotacao card-anotacao-status-' + novoStatus;
+                var listaDestino = getListaAnotacoesPorStatus(novoStatus);
+                if (listaDestino) listaDestino.appendChild(card);
+                saveState();
+                renderAnotacoesDestaque();
+            });
+            return card;
+        }
+
+        var DESTAQUE_OCULTAS_KEY = 'sorpes-anotacoes-destaque-ocultas';
+
+        function getDestaqueOcultas() {
+            var hoje = getDataHoje();
+            try {
+                var raw = localStorage.getItem(DESTAQUE_OCULTAS_KEY);
+                var data = raw ? JSON.parse(raw) : null;
+                if (data && data.date === hoje && Array.isArray(data.ids)) return data;
+            } catch (e) {}
+            return { date: hoje, ids: [] };
+        }
+
+        function setDestaqueOculto(id) {
+            var hoje = getDataHoje();
+            var data = getDestaqueOcultas();
+            if (data.ids.indexOf(id) === -1) data.ids.push(id);
+            data.date = hoje;
+            try {
+                localStorage.setItem(DESTAQUE_OCULTAS_KEY, JSON.stringify(data));
+            } catch (e) {}
+        }
+
+        function renderAnotacoesDestaque() {
+            var wrapper = document.getElementById('anotacoes-destaque-wrapper');
+            var container = document.getElementById('anotacoes-destaque');
+            if (!wrapper || !container) return;
+            var monthData = state.mesAtivo && state.meses[state.mesAtivo] ? state.meses[state.mesAtivo] : null;
+            var list = (monthData && monthData.anotacoes) ? monthData.anotacoes : [];
+            var hoje = getDataHoje();
+            var ocultas = getDestaqueOcultas();
+            var emDestaque = list.filter(function (a) {
+                var d = (a.dataLimite || '').trim();
+                var status = (a.status || 'pendente');
+                if (!d || d > hoje || status === 'finalizada') return false;
+                if (ocultas.ids.indexOf(a.id) !== -1) return false;
+                return true;
+            });
+            container.innerHTML = '';
+            if (emDestaque.length === 0) {
+                wrapper.style.display = 'none';
+                return;
+            }
+            wrapper.style.display = 'block';
+            emDestaque.forEach(function (a) {
+                var div = document.createElement('div');
+                div.className = 'anotacao-destaque-item';
+                div.innerHTML =
+                    '<button type="button" class="anotacao-destaque-fechar" aria-label="Ocultar até amanhã" title="Ocultar até amanhã">×</button>' +
+                    '<strong class="anotacao-destaque-titulo">' + escapeHtml(a.titulo || 'Sem título') + '</strong>' +
+                    '<span class="anotacao-destaque-data">' + (a.dataLimite ? formatarData(a.dataLimite) : '') + '</span>' +
+                    '<p class="anotacao-destaque-texto">' + escapeHtml((a.texto || '').slice(0, 120)) + ((a.texto || '').length > 120 ? '…' : '') + '</p>';
+                div.querySelector('.anotacao-destaque-fechar').addEventListener('click', function () {
+                    setDestaqueOculto(a.id);
+                    renderAnotacoesDestaque();
+                });
+                container.appendChild(div);
+            });
         }
 
         function saveState() {
@@ -1096,7 +1259,7 @@
             var usuarios = state.usuarios || [];
             var hasUsers = usuarios.length > 0;
             document.body.classList.toggle('has-usuarios', hasUsers);
-            ['campo-dono-fixo', 'campo-dono-variavel', 'campo-dono-receitas', 'campo-dono-ganhos-futuros'].forEach(function (id) {
+            ['campo-dono-fixo', 'campo-dono-variavel', 'campo-dono-receitas', 'campo-dono-ganhos-futuros', 'campo-dono-movimentacao'].forEach(function (id) {
                 var el = document.getElementById(id);
                 if (el) el.style.display = hasUsers ? '' : 'none';
             });
@@ -1104,7 +1267,7 @@
             usuarios.forEach(function (u) {
                 opts += '<option value="' + escapeHtml(u.id) + '">' + escapeHtml(u.nome) + '</option>';
             });
-            ['fixo-usuario', 'variavel-usuario', 'receita-usuario', 'ganhos-futuros-usuario'].forEach(function (id) {
+            ['fixo-usuario', 'variavel-usuario', 'receita-usuario', 'ganhos-futuros-usuario', 'movimentacao-usuario'].forEach(function (id) {
                 var sel = document.getElementById(id);
                 if (sel) {
                     var val = sel.value;
@@ -1113,23 +1276,9 @@
                 }
             });
             document.querySelectorAll('.card-gasto-mensal').forEach(function (card) {
-                var form = card.querySelector('.card-gasto-mensal-form');
                 var thead = card.querySelector('.tabela-gasto-mensal thead tr');
-                if (!form || !thead) return;
-                var campoDono = form.querySelector('.campo-dono-mensal');
+                if (!thead) return;
                 if (hasUsers) {
-                    if (!campoDono) {
-                        var div = document.createElement('div');
-                        div.className = 'campo campo-dono-mensal';
-                        div.innerHTML = '<label>Dono</label><select name="usuario"><option value="">— Nenhum —</option></select>';
-                        form.querySelector('.form-botoes-mensal').before(div);
-                    }
-                    var sel = form.querySelector('select[name="usuario"]');
-                    if (sel) {
-                        var v = sel.value;
-                        sel.innerHTML = opts;
-                        if (v && usuarios.some(function (u) { return u.id === v; })) sel.value = v;
-                    }
                     if (!thead.querySelector('th.col-usuario')) {
                         var th = document.createElement('th');
                         th.className = 'col-usuario';
@@ -1139,7 +1288,6 @@
                         else thead.appendChild(th);
                     }
                 } else {
-                    if (campoDono) campoDono.remove();
                     var thU = thead.querySelector('th.col-usuario');
                     if (thU) thU.remove();
                 }
@@ -1285,6 +1433,19 @@
                 tbodyGanhosFuturos.appendChild(tr);
                 vincularEventosLinhaGanhosFuturos(tr, formGanhosFuturos.querySelector('.btn-adicionar'), formGanhosFuturos.querySelector('.btn-cancelar-edicao'));
             });
+
+            ['pendente', 'andamento', 'finalizada'].forEach(function (status) {
+                var list = document.getElementById('lista-anotacoes-' + status);
+                if (list) list.innerHTML = '';
+            });
+            (monthData.anotacoes || []).forEach(function (a) {
+                var status = a.status || 'pendente';
+                var list = document.getElementById('lista-anotacoes-' + status);
+                if (!list) return;
+                var card = renderCardAnotacao(a);
+                if (card) list.appendChild(card);
+            });
+            renderAnotacoesDestaque();
         }
 
         // Modal de aviso (mês com dados)
@@ -1326,6 +1487,9 @@
             if (card.classList.contains('mes-tab')) {
                 modalExcluirTitulo.textContent = 'Excluir aba do mês';
                 modalExcluirTexto.textContent = 'Tem certeza que deseja excluir a aba de ' + formatarNomeMes(card.dataset.mes) + '? Os dados deste mês serão perdidos.';
+            } else if (card.classList.contains('card-anotacao')) {
+                modalExcluirTitulo.textContent = 'Excluir anotação';
+                modalExcluirTexto.textContent = 'Tem certeza que deseja excluir esta anotação?';
             } else {
                 modalExcluirTitulo.textContent = 'Excluir gasto';
                 modalExcluirTexto.textContent = 'Tem certeza que deseja excluir este tipo de gasto?';
@@ -1342,6 +1506,13 @@
 
         function excluirGasto() {
             if (cardParaExcluir) {
+                if (cardParaExcluir.classList.contains('card-anotacao')) {
+                    cardParaExcluir.remove();
+                    saveState();
+                    renderAnotacoesDestaque();
+                    fecharModalExcluir();
+                    return;
+                }
                 if (cardParaExcluir.classList.contains('mes-tab')) {
                     var chave = cardParaExcluir.dataset.mes;
                     delete state.meses[chave];
@@ -1376,7 +1547,7 @@
                     linhaEmEdicaoGanhosFuturos = null;
                 } else if (cardParaExcluir.tagName === 'TR' && linhaEmEdicaoMensal === cardParaExcluir) {
                     const cardMensal = cardParaExcluir.closest('.card-gasto-mensal');
-                    if (cardMensal) sairEdicaoMensal(cardMensal);
+                    if (cardMensal) sairEdicaoMensal();
                     linhaEmEdicaoMensal = null;
                     cardEmEdicaoMensal = null;
                 }

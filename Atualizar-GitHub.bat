@@ -18,8 +18,12 @@ if errorlevel 1 (
 )
 
 echo.
+set "MSG=Atualização SORPES"
+set /p "MSG=Mensagem do commit (Enter = Atualização SORPES): "
+if "%MSG%"=="" set "MSG=Atualização SORPES"
+echo.
 echo [2/3] Criando commit...
-git commit -m "Atualização SORPES"
+git commit -m "%MSG%"
 if errorlevel 1 (
     echo Nenhuma alteração para enviar ou erro no commit.
     echo Se não houver mudanças, isso é normal.
