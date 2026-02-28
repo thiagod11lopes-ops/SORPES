@@ -149,6 +149,9 @@
 
                 botao.classList.add('ativo');
                 document.getElementById('painel-' + tabAlvo).classList.add('ativo');
+                if (tabAlvo === 'mensais' && typeof atualizarSelectMovimentacoes === 'function') {
+                    atualizarSelectMovimentacoes();
+                }
             });
         });
 
@@ -650,32 +653,37 @@
         const selectMovimentacoes = document.getElementById('select-movimentacoes');
 
         function aplicarVisibilidadeCardMovimentacao() {
-            if (!selectMovimentacoes || !listaGastosMensais) return;
-            var val = selectMovimentacoes.value;
-            listaGastosMensais.querySelectorAll('.card-gasto-mensal').forEach(function (card) {
+            var sel = document.getElementById('select-movimentacoes');
+            var list = document.getElementById('lista-gastos-mensais');
+            if (!sel || !list) return;
+            var val = sel.value;
+            list.querySelectorAll('.card-gasto-mensal').forEach(function (card) {
                 card.style.display = (val && card.dataset.id === val) ? '' : 'none';
             });
         }
 
         function atualizarSelectMovimentacoes() {
-            if (!selectMovimentacoes || !listaGastosMensais) return;
-            var cards = listaGastosMensais.querySelectorAll('.card-gasto-mensal');
-            var selected = selectMovimentacoes.value;
-            selectMovimentacoes.innerHTML = '';
+            var sel = document.getElementById('select-movimentacoes');
+            var list = document.getElementById('lista-gastos-mensais');
+            if (!sel || !list) return;
+            var cards = list.querySelectorAll('.card-gasto-mensal');
+            var selected = sel.value;
+            sel.innerHTML = '';
             if (cards.length === 0) {
-                selectMovimentacoes.appendChild(new Option('Nenhuma movimentação', ''));
-                selectMovimentacoes.value = '';
+                sel.appendChild(new Option('Nenhuma movimentação', ''));
+                sel.value = '';
             } else {
-                cards.forEach(function (card, i) {
+                for (var i = 0; i < cards.length; i++) {
+                    var card = cards[i];
                     var tituloEl = card.querySelector('.titulo-bloco');
                     var titulo = tituloEl ? tituloEl.textContent.trim() : '';
                     if (!titulo) titulo = 'Bloco ' + (i + 1);
-                    selectMovimentacoes.appendChild(new Option(titulo, card.dataset.id));
-                });
-                if (selected && listaGastosMensais.querySelector('.card-gasto-mensal[data-id="' + selected + '"]')) {
-                    selectMovimentacoes.value = selected;
+                    sel.appendChild(new Option(titulo, card.dataset.id || ''));
+                }
+                if (selected && list.querySelector('.card-gasto-mensal[data-id="' + selected + '"]')) {
+                    sel.value = selected;
                 } else {
-                    selectMovimentacoes.value = cards[0].dataset.id;
+                    sel.value = cards[0].dataset.id || '';
                 }
                 aplicarVisibilidadeCardMovimentacao();
             }
@@ -868,11 +876,14 @@
             var card = criarCardGastoMensal(null);
             applyVisibilityUsuarios();
             saveState();
-            atualizarSelectMovimentacoes();
-            if (selectMovimentacoes && card) {
-                selectMovimentacoes.value = card.dataset.id;
-                aplicarVisibilidadeCardMovimentacao();
-            }
+            setTimeout(function () {
+                atualizarSelectMovimentacoes();
+                var sel = document.getElementById('select-movimentacoes');
+                if (sel && card && card.dataset && card.dataset.id) {
+                    sel.value = card.dataset.id;
+                    aplicarVisibilidadeCardMovimentacao();
+                }
+            }, 0);
         });
 
         (function setupArrastarCards() {
