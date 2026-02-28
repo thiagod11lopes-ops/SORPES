@@ -722,6 +722,10 @@
                 '    <label>Data do gasto</label>' +
                 '    <input type="date" name="data" required>' +
                 '  </div>' +
+                '  <div class="campo campo-descricao-mensal">' +
+                '    <label>Descrição</label>' +
+                '    <input type="text" name="descricao" placeholder="Ex: Compras diversas">' +
+                '  </div>' +
                 '  <div class="campo">' +
                 '    <label>Valor</label>' +
                 '    <input type="number" name="valor" placeholder="0,00" step="0.01" min="0" required>' +
@@ -732,7 +736,7 @@
                 '  </div>' +
                 '</div>' +
                 '<table class="tabela-gasto-mensal">' +
-                '  <thead><tr><th>Data</th><th>Valor</th><th>Ações</th></tr></thead>' +
+                '  <thead><tr><th>Data</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr></thead>' +
                 '  <tbody></tbody></table>' +
                 '</div>';
             listaGastosMensais.appendChild(card);
@@ -771,10 +775,9 @@
                     limiteInput.value = partes.join(',');
                 }
                 const tbody = card.querySelector('.tabela-gasto-mensal tbody');
-                const comDescricao = dados.titulo && dados.titulo.trim().toLowerCase() === 'outros';
                 if (dados.items && dados.items.length) {
                     dados.items.forEach(function (item) {
-                        const descricao = comDescricao ? (item.descricao || '') : undefined;
+                        const descricao = item.descricao || '';
                         const tr = criarLinhaGastoMensal(item.data, item.valor, descricao, item.usuario);
                         tbody.appendChild(tr);
                         vincularEventosLinhaMensal(tr, card);
@@ -796,24 +799,22 @@
 
                 const data = dataInput.value;
                 const valor = parseFloat(valorInput.value);
-                const descricao = ehCardOutros(card) && descricaoInput ? descricaoInput.value.trim() : undefined;
+                const descricao = descricaoInput ? descricaoInput.value.trim() : '';
                 var usuarioSel = card.querySelector('select[name="usuario"]');
                 var usuario = usuarioSel ? usuarioSel.value : '';
 
                 if (!data || isNaN(valor) || valor < 0) return;
 
                 const tbody = card.querySelector('.tabela-gasto-mensal tbody');
-                const colValorIdx = ehCardOutros(card) ? 2 : 1;
+                const colValorIdx = 2;
                 const colDescIdx = 1;
 
                 if (linhaEmEdicaoMensal && cardEmEdicaoMensal === card) {
                     linhaEmEdicaoMensal.dataset.data = data;
                     linhaEmEdicaoMensal.dataset.valor = valor;
+                    linhaEmEdicaoMensal.dataset.descricao = descricao || '';
                     if (usuario !== undefined) linhaEmEdicaoMensal.dataset.usuario = usuario || '';
-                    if (ehCardOutros(card)) {
-                        linhaEmEdicaoMensal.dataset.descricao = descricao || '';
-                        linhaEmEdicaoMensal.cells[colDescIdx].textContent = descricao || '';
-                    }
+                    linhaEmEdicaoMensal.cells[colDescIdx].textContent = descricao || '';
                     linhaEmEdicaoMensal.cells[0].textContent = formatarData(data);
                     linhaEmEdicaoMensal.cells[colValorIdx].textContent = 'R$ ' + formatarValor(valor);
                     linhaEmEdicaoMensal.cells[colValorIdx].className = 'valor-real';
@@ -913,56 +914,20 @@
         }
 
         function aplicarEstruturaOutros(card) {
-            const ehOutros = ehCardOutros(card);
-            const form = card.querySelector('.card-gasto-mensal-form');
-            const campoDescricao = form.querySelector('.campo-descricao-mensal');
-            const thead = card.querySelector('.tabela-gasto-mensal thead tr');
-            const tbody = card.querySelector('.tabela-gasto-mensal tbody');
-
-            if (ehOutros) {
-                if (!campoDescricao) {
-                    const div = document.createElement('div');
-                    div.className = 'campo campo-descricao-mensal';
-                    div.innerHTML = '<label>Descrição</label><input type="text" name="descricao" placeholder="Ex: Compras diversas">';
-                    const valorCampo = form.querySelector('.campo input[name="valor"]');
-                    valorCampo.closest('.campo').before(div);
-                }
-                if (!thead.querySelector('th:nth-child(2)') || thead.cells[1].textContent !== 'Descrição') {
-                    const thValor = thead.querySelector('th:nth-child(2)');
-                    const thDesc = document.createElement('th');
-                    thDesc.textContent = 'Descrição';
-                    thead.insertBefore(thDesc, thValor);
-                    tbody.querySelectorAll('tr').forEach(function (tr) {
-                        const tdValor = tr.querySelector('.valor-real') || tr.cells[1];
-                        const tdDesc = document.createElement('td');
-                        tdDesc.textContent = tr.dataset.descricao || '';
-                        tr.insertBefore(tdDesc, tdValor);
-                    });
-                }
-            } else {
-                if (campoDescricao) campoDescricao.remove();
-                const thDesc = thead.querySelector('th:nth-child(2)');
-                if (thDesc && thDesc.textContent === 'Descrição') {
-                    thDesc.remove();
-                    tbody.querySelectorAll('tr').forEach(function (tr) {
-                        if (tr.cells.length >= 4) tr.cells[1].remove();
-                    });
-                }
-            }
+            /* Todos os cards têm coluna Descrição; não remove mais. */
         }
 
         function criarLinhaGastoMensal(data, valor, descricao, usuario) {
             const tr = document.createElement('tr');
             tr.dataset.data = data;
             tr.dataset.valor = valor;
-            if (descricao !== undefined) tr.dataset.descricao = descricao || '';
+            tr.dataset.descricao = (descricao !== undefined && descricao !== null) ? (descricao || '') : '';
             if (usuario) tr.dataset.usuario = usuario;
-            const tdDesc = (descricao !== undefined) ? '<td>' + escapeHtml(descricao || '') + '</td>' : '';
             const hasUsers = (state.usuarios || []).length > 0;
             const tdUsuario = hasUsers ? ('<td class="col-usuario">' + escapeHtml(getNomeUsuario(usuario)) + '</td>') : '';
             tr.innerHTML =
                 '<td>' + formatarData(data) + '</td>' +
-                (tdDesc) +
+                '<td>' + escapeHtml(tr.dataset.descricao) + '</td>' +
                 '<td class="valor-real">R$ ' + formatarValor(valor) + '</td>' +
                 tdUsuario +
                 '<td class="col-acoes">' +
@@ -1097,11 +1062,9 @@
                 const titulo = (card.querySelector('.titulo-bloco') || {}).textContent || '';
                 const limiteInput = card.querySelector('.input-limite');
                 const limite = parsearValorMoeda(limiteInput ? limiteInput.value : '');
-                const comDescricao = titulo.trim().toLowerCase() === 'outros';
                 const items = [];
                 card.querySelectorAll('.tabela-gasto-mensal tbody tr').forEach(function (tr) {
-                    const item = { data: tr.dataset.data, valor: parseFloat(tr.dataset.valor || 0) };
-                    if (comDescricao) item.descricao = tr.dataset.descricao || '';
+                    const item = { data: tr.dataset.data, valor: parseFloat(tr.dataset.valor || 0), descricao: tr.dataset.descricao || '' };
                     if (tr.dataset.usuario) item.usuario = tr.dataset.usuario;
                     items.push(item);
                 });

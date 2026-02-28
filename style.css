@@ -1214,21 +1214,10 @@ body.has-usuarios .tabela-gasto-mensal td.col-usuario {
 }
 
 .lista-gastos-mensais {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 1rem;
-}
-
-@media (max-width: 1100px) {
-    .lista-gastos-mensais {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 600px) {
-    .lista-gastos-mensais {
-        grid-template-columns: 1fr;
-    }
 }
 
 .card-gasto-mensal {
@@ -1241,6 +1230,8 @@ body.has-usuarios .tabela-gasto-mensal td.col-usuario {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    width: 100%;
+    max-width: 380px;
 }
 
 .card-gasto-mensal .campo {
